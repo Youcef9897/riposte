@@ -1,9 +1,5 @@
 </main>
-<nav class="fleches" aria-label="Défilement">
-  <a href="#haut" title="Remonter">▲</a>
-  <a href="#bas" title="Descendre">▼</a>
-</nav>
-<footer id="bas">
+<footer>
   <div class="pied">
     <div>
       <h3>Boutique</h3>
