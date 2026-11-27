@@ -17,15 +17,6 @@ require __DIR__ . '/inc/haut.php';
     <input type="search" name="q" placeholder="Rechercher un produit" value="<?= e($q) ?>">
     <button>Rechercher</button>
   </form>
-  <form class="recherche" method="get" action="index.php">
-    <select name="q" aria-label="Tout le matériel">
-      <option value="">Tout le matériel</option>
-      <?php foreach ($db->query('SELECT nom FROM produits ORDER BY nom')->fetchAll() as $m): ?>
-        <option value="<?= e($m['nom']) ?>"><?= e($m['nom']) ?></option>
-      <?php endforeach; ?>
-    </select>
-    <button class="second">Afficher</button>
-  </form>
 </div>
 <?php if ($q !== ''): ?>
   <!-- Le texte recherché est échappé avant affichage : il s'affiche, il ne s'exécute pas (plus de XSS). -->
