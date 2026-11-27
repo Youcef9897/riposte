@@ -42,6 +42,7 @@ cat > /etc/apache2/sites-available/netstock-lab.conf <<CONF
 Listen 127.0.0.1:$PORT
 <VirtualHost 127.0.0.1:$PORT>
     DocumentRoot $DEST
+    DirectoryIndex accueil.php index.php
     <Directory $DEST>
         Options -Indexes
         AllowOverride None
