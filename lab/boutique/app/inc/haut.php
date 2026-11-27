@@ -9,9 +9,10 @@
 </head>
 <body>
 <p class="lab">NetStock Lab — <strong>version corrigée</strong> (exercice de sécurité). Données fictives.</p>
-<header>
-  <a class="marque" href="index.php">NetStock Lab</a>
+<header id="haut">
+  <a class="marque" href="accueil.php">NetStock Lab</a>
   <nav>
+    <a href="accueil.php">Accueil</a>
     <a href="index.php">Catalogue</a>
     <a href="panier.php">Panier (<?= count($_SESSION['panier']) ?>)</a>
     <?php if ($client): ?>

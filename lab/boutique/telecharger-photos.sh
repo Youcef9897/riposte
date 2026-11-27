@@ -22,6 +22,14 @@ grep -v '^#' "$LISTE" | while IFS='|' read -r numero adresse page credit; do
         echo "Produit $numero : téléchargement impossible, la vignette texte reste affichée"
     fi
 done
+# Grande photo de la page d'accueil (même photo Pexels que le produit 1, en haute définition).
+ACCUEIL='https://images.pexels.com/photos/4716292/pexels-photo-4716292.jpeg?auto=compress&cs=tinysrgb&w=1920'
+if curl -fsSL --max-time 60 -o "$TMP/brut" "$ACCUEIL"; then
+    convert "$TMP/brut" -resize '1600x600^' -gravity center -extent 1600x600 -quality 82 "$DEST/accueil.jpg"
+    echo "Accueil : photo installée (Pexels, photo n° 4716292)"
+else
+    echo "Accueil : téléchargement impossible, un fond bleu reste affiché"
+fi
 rm -rf "$TMP"
 chown -R root:www-data "$DEST"
 chmod 644 "$DEST"/*
