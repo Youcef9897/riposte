@@ -673,6 +673,13 @@ def constats_zap(alertes, existants) -> list:
 
 # ---------------------------------------------------------------- Tests applicatifs de base
 
+def _couper(texte: str, longueur: int) -> str:
+    """Coupe un texte trop long à la fin d'un mot, avec « … »."""
+    if len(texte) <= longueur:
+        return texte
+    return texte[:longueur].rsplit(" ", 1)[0].rstrip(" ,;:") + " …"
+
+
 def constats_applicatif(app) -> list:
     """XSS réfléchie et injection SQL trouvées par vulnscan.applicatif (un constat par faille, tous les lieux en preuve)."""
     if not app:
@@ -689,7 +696,7 @@ def constats_applicatif(app) -> list:
             recommandation="Utiliser des requêtes préparées avec paramètres liés (PDO::prepare puis execute) pour "
                            "toutes les requêtes, et ne jamais afficher les erreurs de la base au visiteur "
                            "(message générique, détail dans le journal du serveur).",
-            preuves=[f"{e['lieu']} : « valeur' » → {e['erreur'][:140]}"
+            preuves=[f"{e['lieu']} : « valeur' » → {_couper(e['erreur'], 140)}"
                      + (" ; « valeur'' » → pas d'erreur" if e["confirme"] else "") for e in app["sqli"][:5]],
             sources=["Tests applicatifs"],
             verification=CONFIRME if confirmes else NON_VERIFIABLE,
@@ -703,7 +710,7 @@ def constats_applicatif(app) -> list:
                         "fausse page de connexion).",
             recommandation="Échapper toute donnée affichée (en PHP : htmlspecialchars($valeur, ENT_QUOTES, 'UTF-8')) "
                            "et ajouter une Content-Security-Policy qui interdit les scripts en ligne.",
-            preuves=[f"{e['lieu']} : marqueur renvoyé tel quel → …{e['extrait'][:140]}…" for e in app["xss"][:5]],
+            preuves=[f"{e['lieu']} : marqueur renvoyé tel quel → {_couper(e['extrait'], 140)}" for e in app["xss"][:5]],
             sources=["Tests applicatifs"], verification=CONFIRME,
             reference="OWASP Top 10 A03 — CWE-79"))
     return r
