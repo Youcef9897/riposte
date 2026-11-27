@@ -113,7 +113,7 @@ def test_fichiers_internes_non_executables_depuis_le_web(boutique):
     assert requests.get(f"{boutique}/inc/installer.php", timeout=5).status_code == 403
 
 
-def test_photo_affichee_avec_son_credit_seulement_si_telechargee(tmp_path):
+def test_photo_affichee_seulement_si_telechargee(tmp_path):
     site = tmp_path / "site"
     shutil.copytree(APP, site)
     base = tmp_path / "b.sqlite"
@@ -133,7 +133,10 @@ def test_photo_affichee_avec_son_credit_seulement_si_telechargee(tmp_path):
         assert '<img class="vignette" src="img/produit-1.jpg"' in page
         assert '<img class="vignette" src="img/produit-6.svg"' in page          # illustration du SSD
         assert page.count('<img class="vignette"') == 2 and '<div class="vignette">Réseau</div>' in page
-        assert 'Photos libres de droits : <a href="https://www.pexels.com/photo/4716292/">Pexels, photo n° 4716292</a>.' in page
+        assert "Photos libres de droits" not in page                          # plus de liens de crédit en bas de page
+        assert "Pexels et Unsplash" in requests.get(f"http://127.0.0.1:{port}/aide.php", timeout=2).text
+        accueil = requests.get(f"http://127.0.0.1:{port}/accueil.php", timeout=2).text
+        assert '<section class="hero">' in accueil and 'href="index.php">Voir le catalogue' in accueil
     finally:
         serveur.terminate()
         serveur.wait(timeout=5)

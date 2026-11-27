@@ -11,11 +11,22 @@ if ($q !== '') {
 $produits = $requete->fetchAll();
 require __DIR__ . '/inc/haut.php';
 ?>
-<h1>Catalogue</h1>
-<form class="recherche" method="get" action="index.php">
-  <input type="search" name="q" placeholder="Rechercher un produit" value="">
-  <button>Rechercher</button>
-</form>
+<div class="tete-catalogue">
+  <h1>Catalogue</h1>
+  <form class="recherche" method="get" action="index.php">
+    <input type="search" name="q" placeholder="Rechercher un produit" value="">
+    <button>Rechercher</button>
+  </form>
+  <form class="recherche" method="get" action="index.php">
+    <select name="q" aria-label="Tout le matériel">
+      <option value="">Tout le matériel</option>
+      <?php foreach ($db->query('SELECT nom FROM produits ORDER BY nom')->fetchAll() as $m): ?>
+        <option value="<?= e($m['nom']) ?>"><?= e($m['nom']) ?></option>
+      <?php endforeach; ?>
+    </select>
+    <button class="second">Afficher</button>
+  </form>
+</div>
 <?php if ($q !== ''): ?>
   <!-- Faille volontaire (XSS réfléchi) : le texte recherché est réaffiché sans échappement. -->
   <p class="info">Résultats pour : <?= $q ?></p>

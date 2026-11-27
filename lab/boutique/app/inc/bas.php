@@ -1,17 +1,30 @@
 </main>
-<footer>
-  NetStock Lab — matériel réseau fictif, aucune vente réelle.
-  <?php
-  $credits = [];
-  foreach (@file(__DIR__ . '/../img/photos.txt', FILE_IGNORE_NEW_LINES) ?: [] as $ligne) {
-      $champs = explode('|', $ligne);
-      if ($ligne !== '' && $ligne[0] !== '#' && count($champs) === 4 && is_file(__DIR__ . '/../img/produit-' . (int) $champs[0] . '.jpg')) {
-          $credits[] = '<a href="' . e($champs[2]) . '">' . e($champs[3]) . '</a>';
-      }
-  }
-  if ($credits): ?>
-    <br>Photos libres de droits : <?= implode(', ', $credits) ?>.
-  <?php endif; ?>
+<nav class="fleches" aria-label="Défilement">
+  <a href="#haut" title="Remonter">▲</a>
+  <a href="#bas" title="Descendre">▼</a>
+</nav>
+<footer id="bas">
+  <div class="pied">
+    <div>
+      <h3>Boutique</h3>
+      <a href="accueil.php">Accueil</a>
+      <a href="index.php">Catalogue</a>
+      <a href="panier.php">Panier</a>
+      <a href="compte.php">Mon compte</a>
+    </div>
+    <div>
+      <h3>Aide</h3>
+      <a href="aide.php#livraison">Livraison</a>
+      <a href="aide.php#retours">Retours</a>
+      <a href="aide.php#contact">Nous contacter</a>
+    </div>
+    <div>
+      <h3>Informations</h3>
+      <a href="aide.php#mentions">Mentions légales</a>
+      <a href="aide.php#confidentialite">Confidentialité</a>
+    </div>
+  </div>
+  <p class="copyright">© 2026 NetStock Lab — site de démonstration, aucune vente réelle.</p>
 </footer>
 </body>
 </html>
