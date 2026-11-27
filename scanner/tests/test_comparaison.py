@@ -65,7 +65,7 @@ def test_ecart_et_bilan():
     c = comparer(AVANT, APRES)
     assert c["apres"]["score"] == 100 - 8 - 8 - 3 == 81
     assert c["ecart"] == 30 and c["meme_cible"]
-    assert c["bilan"].startswith("Le score passe de 51 à 81/100 (+30 points) : 6 constat(s) corrigé(s)")
+    assert c["bilan"] == "Le score passe de 51 à 81/100 (+30 points) : 6 constats corrigés, 1 nouveau, 2 toujours présents."
     # La somme des points regagnés et perdus redonne l'écart de score
     assert sum(l["gain"] for l in c["lignes"]) == c["ecart"]
 
@@ -92,7 +92,7 @@ def test_cve_disparues_avec_la_version_masquee_ne_sont_pas_dites_corrigees():
 
     masque = comparer(avant, apres({"numero": 80, "etat": "open", "version": "Apache httpd"}))
     assert masque["lignes"][0]["statut"] == "Plus vérifiable" and masque["lignes"][0]["gain"] == 8
-    assert "1 plus vérifiable(s)" in masque["bilan"] and "pas la preuve d'une mise à jour" in masque["note_version"]
+    assert "1 plus vérifiable" in masque["bilan"] and "pas la preuve d'une mise à jour" in masque["note_version"]
     # Version toujours lisible et plus de CVE (paquet mis à jour), ou port fermé : c'est bien une correction
     a_jour = comparer(avant, apres({"numero": 80, "etat": "open", "version": "Apache httpd 2.4.62 (Ubuntu)"}))
     ferme = comparer(avant, apres({"numero": 80, "etat": "closed", "version": ""}))

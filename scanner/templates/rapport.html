@@ -5,7 +5,7 @@
   <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start">
     <div>
       <h1>Rapport d'analyse de sécurité</h1>
-      <p class="doux">{{ r.cible.url }} — {{ r.date }} — durée {{ r.durees.Total }} s</p>
+      <p class="doux">{{ r.cible.url }} — {{ r.date }} — durée {{ r.durees.Total|duree }}</p>
     </div>
     <div style="display:flex;gap:8px">
       <a class="bouton" href="/scan/{{ r.id }}/pdf">Télécharger le PDF</a>
@@ -17,7 +17,7 @@
   {% endif %}
   {% if r.cible.locale %}
   {% if r.ecoute_locale_lue %}
-  <p class="alerte petit">Analyse lancée depuis la machine qui héberge le site : pour chaque port ouvert, l'adresse d'écoute réelle est lue sur la machine (commande ss). Un service qui n'écoute que sur 127.0.0.1 n'est pas joignable depuis le réseau et ne retire aucun point.</p>
+  <p class="alerte petit">Analyse lancée depuis la machine qui héberge le site. Pour chaque port ouvert, le scanner lit sur la machine l'adresse où le service attend les connexions (commande ss) : un service limité à 127.0.0.1 n'est pas joignable depuis le réseau, il ne retire donc aucun point.</p>
   {% else %}
   <p class="alerte petit">Analyse lancée depuis la machine qui héberge le site : les ports ouverts sont marqués « À vérifier », car ils ne sont peut-être pas accessibles depuis le réseau.</p>
   {% endif %}
@@ -38,8 +38,8 @@
   <div>
     <h2>Synthèse</h2>
     <p>{{ r.resume }}</p>
-    <p class="petit doux">Résumé rédigé : {{ r.resume_origine }}.</p>
-    <p>{% for g in gravites %}<span class="grav grav-{{ g }}">{{ r.score.comptes[g] }} {{ g|lower }}</span> {% endfor %}</p>
+    <p class="petit doux">{{ r.resume_origine|origine_resume }}</p>
+    <p>{% for g in gravites %}<span class="grav grav-{{ g }}">{{ r.score.comptes[g]|accord(g|lower, "info" if g == "Info" else none) }}</span> {% endfor %}</p>
   </div>
 </section>
 
@@ -85,20 +85,20 @@
   <h2>Méthodologie</h2>
   <table>
     <tr><th>Étape</th><th>Version</th><th>Durée</th></tr>
-    <tr><td>Vérification directe (requêtes HTTP)</td><td>—</td><td>{{ r.durees["Vérification directe"] }} s</td></tr>
+    <tr><td>Vérification directe (requêtes HTTP)</td><td>—</td><td>{{ r.durees["Vérification directe"]|duree }}</td></tr>
     {% if r.chemins %}
-    <tr><td>Contrôle des chemins sensibles ({{ r.chemins.requetes }} requêtes GET)</td><td>—</td><td>{{ r.durees["Chemins sensibles"] }} s</td></tr>
+    <tr><td>Contrôle des chemins sensibles ({{ r.chemins.requetes|accord("requête GET", "requêtes GET") }})</td><td>—</td><td>{{ r.durees["Chemins sensibles"]|duree }}</td></tr>
     {% endif %}
     {% if r.applicatif %}
-    <tr><td>Tests applicatifs de base : XSS, injection SQL ({{ r.applicatif.points }} paramètre(s), {{ r.applicatif.requetes }} requêtes)</td><td>—</td><td>{{ r.durees["Tests applicatifs"] }} s</td></tr>
+    <tr><td>Tests applicatifs de base : XSS, injection SQL ({{ r.applicatif.points|accord("paramètre") }}, {{ r.applicatif.requetes|accord("requête") }})</td><td>—</td><td>{{ r.durees["Tests applicatifs"]|duree }}</td></tr>
     {% endif %}
     {% for nom in ("Nmap", "Nikto", "SSLScan") %}
-    <tr><td>{{ nom }}</td><td>{{ r.versions[nom] }}</td><td>{{ r.durees[nom] ~ " s" if nom in r.durees else "non lancé" }}</td></tr>
+    <tr><td>{{ nom }}</td><td>{{ r.versions[nom] }}</td><td>{{ r.durees[nom]|duree if nom in r.durees else "non lancé" }}</td></tr>
     {% endfor %}
     {% if r.zap %}
-    <tr><td>ZAP, analyse passive ({{ r.zap.alertes }} alerte(s) retenue(s){% if r.zap.ignorees %}, {{ r.zap.ignorees|length }} d'information ignorée(s){% endif %})</td><td>{{ r.versions["ZAP"] }}</td><td>{{ r.durees["ZAP"] }} s</td></tr>
+    <tr><td>ZAP, analyse passive ({{ r.zap.alertes|accord("alerte retenue", "alertes retenues") }}{% if r.zap.ignorees %}, {{ r.zap.ignorees|length|accord("alerte d'information ignorée", "alertes d'information ignorées") }}{% endif %})</td><td>{{ r.versions["ZAP"] }}</td><td>{{ r.durees["ZAP"]|duree }}</td></tr>
     {% endif %}
-    <tr><td>Résumé ({{ r.resume_origine }})</td><td>—</td><td>{{ r.durees["Résumé"] }} s</td></tr>
+    <tr><td>{{ r.resume_origine|etape_resume }}</td><td>—</td><td>{{ r.durees["Résumé"]|duree }}</td></tr>
   </table>
   {% if r.chemins and r.chemins.ignore %}<p class="alerte petit" style="margin-top:12px">{{ r.chemins.ignore }}</p>{% endif %}
   <p class="petit doux" style="margin-top:12px">{{ r.score.bareme }}</p>

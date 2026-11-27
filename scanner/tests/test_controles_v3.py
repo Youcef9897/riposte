@@ -158,7 +158,7 @@ def test_cve_lues_et_classees():
     assert next(p for p in ports if p.numero == 3306).cves == []
 
     (c,) = constats.constats_cve(ports)
-    assert c.titre == "3 CVE connue(s) pour Apache httpd 2.4.52 (Ubuntu) (port 80)"
+    assert c.titre == "3 CVE connues pour Apache httpd 2.4.52 (Ubuntu) (port 80)"
     assert c.gravite == "Moyenne" and c.verification == constats.NON_VERIFIABLE
     assert "CVE-2023-25690 (CVSS 9.8)" in c.preuves[0]
 

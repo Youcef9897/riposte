@@ -7,6 +7,7 @@ import re
 from dataclasses import dataclass, field, asdict
 
 from .ecoute import locale_uniquement
+from .texte import accord, nom_logiciel
 
 GRAVITES = ["Élevée", "Moyenne", "Faible", "Info"]
 
@@ -121,11 +122,13 @@ def constats_cve(ports, ecoutes=None, cible=None) -> list:
         locale = bool(adresses) and locale_uniquement(adresses)
         if locale:
             gravite = "Info"          # service injoignable depuis le réseau : à mettre à jour, sans urgence
-        produit = p.version or p.service
+        produit = nom_logiciel(p.version) or p.service
+        n = len(p.cves)
         resultats.append(Constat(
-            titre=f"{len(p.cves)} CVE connue(s) pour {produit} (port {p.numero})",
+            titre=f"{accord(n, 'CVE connue', 'CVE connues')} pour {produit} (port {p.numero})",
             gravite=gravite, categorie="Mises à jour",
-            description=f"La version annoncée par le service correspond à {len(p.cves)} vulnérabilité(s) publiée(s), "
+            description=f"La version annoncée par le service correspond à "
+                        f"{accord(n, 'vulnérabilité publiée', 'vulnérabilités publiées')}, "
                         f"avec un score CVSS maximal de {maxi}. Ce constat repose uniquement sur le numéro de version : "
                         "sur Debian et Ubuntu, les correctifs de sécurité sont souvent appliqués sans changer ce numéro, "
                         "d'où l'état « À vérifier ».",
@@ -135,7 +138,7 @@ def constats_cve(ports, ecoutes=None, cible=None) -> list:
                            "sur le suivi de sécurité de la distribution (par exemple ubuntu.com/security/CVE-AAAA-NNNN).",
             preuves=[f"vulners : {c['id']} (CVSS {c['cvss']}) — https://nvd.nist.gov/vuln/detail/{c['id']}"
                      for c in p.cves[:5]]
-                    + ([f"… et {len(p.cves) - 5} autre(s)"] if len(p.cves) > 5 else []),
+                    + ([f"… et {accord(n - 5, 'autre')}"] if n > 5 else []),
             sources=["Nmap (vulners)"], verification=NON_VERIFIABLE,
             reference="OWASP Top 10 A06 — Composants vulnérables et obsolètes"))
     return resultats
@@ -209,7 +212,7 @@ def _constat_etag(lignes, obs) -> Constat:
         return Constat(
             titre="Fuite d'inode par l'en-tête ETag signalée par Nikto",
             gravite="Info", categorie="Divulgation d'informations",
-            description=f"L'ETag observé n'a que {champs} champ(s) (taille et date du fichier) : il ne contient pas de "
+            description=f"L'ETag observé n'a que {accord(champs, 'champ')} (taille et date du fichier) : il ne contient pas de "
                         "numéro d'inode. Depuis Apache 2.4, l'inode n'est plus inclus par défaut ; cette alerte de Nikto "
                         "vise les anciennes versions.",
             recommandation="Aucune action nécessaire.",
@@ -323,7 +326,7 @@ def constats_web(cible, nikto, obs, ports) -> list:
             gravite="Info", categorie="En-têtes HTTP",
             description="Ces en-têtes limitent les informations transmises aux autres sites et l'accès aux fonctions du navigateur.",
             recommandation="Ajouter « Referrer-Policy: strict-origin-when-cross-origin » et un en-tête Permissions-Policy adapté.",
-            preuves=[f"Vérification : {', '.join(autres)} absent(s)"], sources=["Vérification"],
+            preuves=[f"Vérification : {', '.join(autres)} " + ("absent" if len(autres) == 1 else "absents")], sources=["Vérification"],
             reference="OWASP Secure Headers Project"))
 
     # Version du serveur affichée
@@ -506,7 +509,7 @@ def constats_web(cible, nikto, obs, ports) -> list:
 def _constat_certificat(ssl, obs, cible) -> Constat:
     """Le certificat n'est pas accepté par un navigateur : le constat dépend de la raison et de la cible."""
     raison = obs.get("certificat_raison") or ("auto-signé" if ssl.get("auto_signe") else "")
-    preuves = ["Vérification : le certificat est refusé par la vérification d'un navigateur"
+    preuves = ["Vérification : un navigateur refuse ce certificat"
                + (f" ({obs['certificat_detail']})" if obs.get("certificat_detail") else "")]
     if ssl.get("certificat_expire_le"):
         preuves.append(f"SSLScan : Not valid after: {ssl['certificat_expire_le']}")
@@ -595,7 +598,7 @@ def _preuves_zap(alerte, limite=5) -> list:
         lignes.append(f"ZAP : {alerte['nom']} — {i['methode']} {i['uri']}" + (f" ({detail})" if detail else ""))
     reste = len(alerte["instances"]) - limite
     if reste > 0:
-        lignes.append(f"ZAP : … et {reste} autre(s) page(s)")
+        lignes.append(f"ZAP : … et {accord(reste, 'autre page', 'autres pages')}")
     return lignes
 
 
@@ -604,7 +607,7 @@ def _completer(existant, alerte):
     if "ZAP" not in existant.sources:
         existant.sources.append("ZAP")
     pages = sorted({i["uri"] for i in alerte["instances"]})
-    existant.preuves.append(f"ZAP : {alerte['nom']} — vu sur {len(pages)} page(s) : " + ", ".join(pages[:3])
+    existant.preuves.append(f"ZAP : {alerte['nom']} — vu sur {accord(len(pages), 'page')} : " + ", ".join(pages[:3])
                             + (" …" if len(pages) > 3 else ""))
 
 
@@ -680,6 +683,20 @@ def _couper(texte: str, longueur: int) -> str:
     return texte[:longueur].rsplit(" ", 1)[0].rstrip(" ,;:") + " …"
 
 
+def _erreur_courte(erreur: str) -> str:
+    """Garde la partie utile du message de la base : « SQLSTATE[42000]: Syntax error … in your SQL syntax »."""
+    return _couper(erreur.split(";")[0].strip(), 110)
+
+
+def _preuves_sqli(e) -> list:
+    """Deux lignes lisibles : l'apostrophe qui casse la requête, puis la contre-épreuve."""
+    lignes = [f"{e['lieu']}",
+              f"  avec une apostrophe (valeur') : erreur de la base affichée → {_erreur_courte(e['erreur'])}"]
+    if e["confirme"]:
+        lignes.append("  avec deux apostrophes (valeur'') : aucune erreur → l'apostrophe seule casse bien la requête")
+    return lignes
+
+
 def constats_applicatif(app) -> list:
     """XSS réfléchie et injection SQL trouvées par vulnscan.applicatif (un constat par faille, tous les lieux en preuve)."""
     if not app:
@@ -696,8 +713,7 @@ def constats_applicatif(app) -> list:
             recommandation="Utiliser des requêtes préparées avec paramètres liés (PDO::prepare puis execute) pour "
                            "toutes les requêtes, et ne jamais afficher les erreurs de la base au visiteur "
                            "(message générique, détail dans le journal du serveur).",
-            preuves=[f"{e['lieu']} : « valeur' » → {_couper(e['erreur'], 140)}"
-                     + (" ; « valeur'' » → pas d'erreur" if e["confirme"] else "") for e in app["sqli"][:5]],
+            preuves=[ligne for e in app["sqli"][:5] for ligne in _preuves_sqli(e)],
             sources=["Tests applicatifs"],
             verification=CONFIRME if confirmes else NON_VERIFIABLE,
             reference="OWASP Top 10 A03 — CWE-89"))
@@ -710,7 +726,8 @@ def constats_applicatif(app) -> list:
                         "fausse page de connexion).",
             recommandation="Échapper toute donnée affichée (en PHP : htmlspecialchars($valeur, ENT_QUOTES, 'UTF-8')) "
                            "et ajouter une Content-Security-Policy qui interdit les scripts en ligne.",
-            preuves=[f"{e['lieu']} : marqueur renvoyé tel quel → {_couper(e['extrait'], 140)}" for e in app["xss"][:5]],
+            preuves=[f"{e['lieu']} : la balise de test revient sans échappement → {_couper(e['extrait'], 120)}"
+                     for e in app["xss"][:5]],
             sources=["Tests applicatifs"], verification=CONFIRME,
             reference="OWASP Top 10 A03 — CWE-79"))
     return r

@@ -11,6 +11,7 @@ from urllib.parse import urlsplit
 
 from . import (analyse, applicatif as mod_applicatif, chemins as mod_chemins, config, constats as mod_constats, ecoute, outils, resume,
                score as mod_score, verification, zap as mod_zap)
+from .texte import accord, duree as texte_duree
 
 
 def cible_analysee(cible, obs):
@@ -146,8 +147,8 @@ class Scan:
             "zap": ({"alertes": len(rapport_zap["alertes"]), "ignorees": rapport_zap["ignorees"],
                      "hors_site": rapport_zap["hors_site"]} if rapport_zap else None),
             "commandes": {**{n: r.commande for n, r in res_outils.items()},
-                          **({"Chemins sensibles": f"{ch['requetes']} requête(s) GET sous l'adresse analysée"} if ch else {}),
-                          **({"Tests applicatifs": f"{app['requetes']} requête(s), {app['points']} paramètre(s) testé(s) "
+                          **({"Chemins sensibles": f"{accord(ch['requetes'], 'requête GET', 'requêtes GET')} sous l'adresse analysée"} if ch else {}),
+                          **({"Tests applicatifs": f"{accord(app['requetes'], 'requête')}, {accord(app['points'], 'paramètre testé', 'paramètres testés')} "
                               "avec un marqueur texte et une apostrophe"} if app else {})},
             "chemins": ({"requetes": ch["requetes"], "ignore": ch["ignore"]} if ch else None),
             "applicatif": ({"requetes": app["requetes"], "points": app["points"], "ignore": app["ignore"]}
@@ -168,4 +169,4 @@ class Scan:
         }
         (self.dossier / "resultat.json").write_text(
             json.dumps(self.resultat, ensure_ascii=False, indent=2), encoding="utf-8")
-        self._maj(100, f"Analyse terminée en {durees['Total']} s")
+        self._maj(100, f"Analyse terminée en {texte_duree(durees['Total'])}")

@@ -6,6 +6,7 @@ import re
 
 from .constats import FAUX_POSITIF, NON_CONFIRME
 from .score import POIDS
+from .texte import accord, accord_ou_aucun
 
 CORRIGE = "Corrigé"
 ATTENUE = "Atténué"
@@ -15,7 +16,13 @@ INCHANGE = "Toujours présent"
 PLUS_VERIFIABLE = "Plus vérifiable"
 STATUTS = [CORRIGE, ATTENUE, PLUS_VERIFIABLE, NOUVEAU, AGGRAVE, INCHANGE]
 
-_CVE_DU_PORT = re.compile(r"CVE connue\(s\) pour .* \(port (\d+)\)$")
+# Titres anciens (« CVE connue(s) ») et nouveaux (« CVE connue », « CVE connues ») : les analyses déjà
+# enregistrées doivent rester comparables avec les nouvelles.
+_CVE_DU_PORT = re.compile(r"CVE connue(?:\(s\)|s)? pour .* \(port (\d+)\)$", re.IGNORECASE)
+
+# Pluriel des statuts, pour les pastilles (« 3 corrigés », « 2 toujours présents »).
+PLURIELS = {CORRIGE: "corrigés", ATTENUE: "atténués", PLUS_VERIFIABLE: "plus vérifiables",
+            NOUVEAU: "nouveaux", AGGRAVE: "aggravés", INCHANGE: "toujours présents"}
 
 
 def _version_masquee(constat: dict, apres: dict) -> bool:
@@ -43,7 +50,11 @@ def cle(c: dict) -> str:
     titre = c.get("titre", "").lower()
     if "etag" in titre:
         return "etag"          # le titre change selon que l'alerte est confirmée ou un faux positif
-    # « 85 CVE connue(s) pour Apache… » et « 3 CVE connue(s) pour Apache… » : même constat
+    # « 85 CVE connues pour Apache… » et « 3 CVE connues pour Apache… » : même constat, quel que soit le nombre,
+    # la façon d'écrire la version ou la forme du titre (anciennes analyses : « connue(s) »).
+    m = _CVE_DU_PORT.search(titre)
+    if m:
+        return f"cve port {m.group(1)}"
     return re.sub(r"^\d+\s+", "", titre).strip()
 
 
@@ -106,18 +117,20 @@ def comparer(premier: dict, second: dict) -> dict:
                          "plus être cherchées. Les points sont regagnés, mais ce n'est pas la preuve d'une mise à jour : "
                          "mettre le paquet à jour reste nécessaire.") if compte[PLUS_VERIFIABLE] else "",
         "bilan": _bilan(avant["score"]["score"], apres["score"]["score"], ecart, compte),
+        "etiquettes": {s: accord(compte[s], s.lower(), PLURIELS[s]) for s in STATUTS},
     }
 
 
 def _bilan(sa, sb, ecart, compte) -> str:
     signe = f"+{ecart}" if ecart > 0 else str(ecart)
-    morceaux = [f"{compte[CORRIGE]} constat(s) corrigé(s)"]
+    morceaux = [accord_ou_aucun(compte[CORRIGE], "constat corrigé", "constats corrigés")]
     if compte[ATTENUE]:
-        morceaux.append(f"{compte[ATTENUE]} atténué(s)")
+        morceaux.append(accord(compte[ATTENUE], "atténué"))
     if compte[PLUS_VERIFIABLE]:
-        morceaux.append(f"{compte[PLUS_VERIFIABLE]} plus vérifiable(s)")
-    morceaux.append(f"{compte[NOUVEAU]} nouveau(x)")
+        morceaux.append(accord(compte[PLUS_VERIFIABLE], "plus vérifiable"))
+    morceaux.append(accord_ou_aucun(compte[NOUVEAU], "nouveau", "nouveaux"))
     if compte[AGGRAVE]:
-        morceaux.append(f"{compte[AGGRAVE]} aggravé(s)")
-    morceaux.append(f"{compte[INCHANGE]} toujours présent(s)")
-    return f"Le score passe de {sa} à {sb}/100 ({signe} points) : " + ", ".join(morceaux) + "."
+        morceaux.append(accord(compte[AGGRAVE], "aggravé"))
+    morceaux.append(accord_ou_aucun(compte[INCHANGE], "toujours présent", aucun="aucun restant"))
+    points = "point" if abs(ecart) < 2 else "points"
+    return f"Le score passe de {sa} à {sb}/100 ({signe} {points}) : " + ", ".join(morceaux) + "."

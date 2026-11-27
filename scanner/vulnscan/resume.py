@@ -7,6 +7,7 @@ import requests
 
 from . import config
 from .constats import FAUX_POSITIF, NON_CONFIRME
+from .texte import accord
 
 
 def _retenus(constats):
@@ -29,13 +30,17 @@ def resume_automatique(cible, constats, score) -> str:
     priorites = " ; ".join(_dans_la_phrase(x.titre) for x in retenus[:3])
     noms = {"Élevée": "de gravité élevée", "Moyenne": "de gravité moyenne", "Faible": "de gravité faible"}
     detail = ", ".join(f"{c[g]} {noms[g]}" for g in ("Élevée", "Moyenne", "Faible") if c[g])
+    if any(x.categorie == "Injection" for x in retenus):
+        fin = "Les failles d'injection se corrigent dans le code du site ; les autres points, dans la configuration du serveur."
+    elif len(retenus) == 1:
+        fin = "Ce point relève surtout de la configuration du serveur."
+    else:
+        fin = "Ces points relèvent surtout de la configuration du serveur."
     return (
-        f"L'analyse de {cible.url} a relevé {len(retenus)} faiblesse(s) à corriger ({detail}). "
+        f"L'analyse de {cible.url} a relevé {accord(len(retenus), 'faiblesse')} à corriger ({detail}). "
         f"Le score de sécurité est de {score['score']}/100, soit un niveau « {score['niveau']} ». "
-        f"Les corrections prioritaires portent sur : {priorites}. "
-        + ("Les failles d'injection se corrigent dans le code du site ; les autres points, dans la configuration "
-           "du serveur." if any(x.categorie == "Injection" for x in retenus) else
-           "La plupart de ces points se corrigent dans la configuration du serveur, sans modifier le code du site.")
+        + ("La correction prioritaire porte sur : " if len(retenus) == 1 else "Les corrections prioritaires portent sur : ")
+        + f"{priorites}. {fin}"
     )
 
 

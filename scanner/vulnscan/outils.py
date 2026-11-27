@@ -62,13 +62,19 @@ def versions_outils() -> dict:
         except Exception:
             return "inconnue"
     return {
-        "Nmap": premiere_ligne(["nmap", "--version"]),
+        "Nmap": version_nmap(premiere_ligne(["nmap", "--version"])),
         "Nikto": version_nikto(premiere_ligne_nikto()),
         "SSLScan": version_sslscan(premiere_ligne(["sslscan", "--version"])),
     }
 
 
 _COULEURS_TERMINAL = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
+
+
+def version_nmap(ligne: str) -> str:
+    """« Nmap 7.80 » à partir de « Nmap version 7.80 ( https://nmap.org ) »."""
+    m = re.search(r"Nmap version\s+(\S+)", ligne or "")
+    return f"Nmap {m.group(1)}" if m else (ligne or "inconnue")
 
 
 def version_nikto(texte: str) -> str:

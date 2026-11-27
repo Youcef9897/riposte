@@ -8,7 +8,7 @@ import threading
 
 from flask import Flask, abort, jsonify, render_template, request, send_file
 
-from vulnscan import config
+from vulnscan import config, texte
 from vulnscan.cible import CibleRefusee, preparer_cible
 from vulnscan.comparaison import STATUTS, comparer
 from vulnscan.constats import GRAVITES
@@ -16,6 +16,9 @@ from vulnscan.rapport_pdf import generer_pdf, generer_pdf_comparaison
 from vulnscan.scan import Scan
 
 app = Flask(__name__)
+# Accords, durées « 12,8 s » et origine du résumé, utilisés par les pages du rapport.
+app.jinja_env.filters.update(accord=texte.accord, duree=texte.duree, origine_resume=texte.origine_resume,
+                             etape_resume=texte.etape_resume)
 
 SCANS = {}                      # scans lancés depuis le démarrage : id -> Scan
 VERROU = threading.Lock()

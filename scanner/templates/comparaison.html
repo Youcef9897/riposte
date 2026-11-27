@@ -35,7 +35,7 @@
     </div>
   </div>
   <p style="margin-top:16px">{{ c.bilan }}</p>
-  <p>{% for s in statuts %}{% if c.comptes[s] %}<span class="statut st-{{ s.split(' ')[0] }}">{{ c.comptes[s] }} {{ s|lower }}</span> {% endif %}{% endfor %}</p>
+  <p>{% for s in statuts %}{% if c.comptes[s] %}<span class="statut st-{{ s.split(' ')[0] }}">{{ c.etiquettes[s] if c.etiquettes else c.comptes[s] ~ " " ~ s|lower }}</span> {% endif %}{% endfor %}</p>
 </section>
 
 <section class="carte">

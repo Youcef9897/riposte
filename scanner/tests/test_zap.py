@@ -116,7 +116,7 @@ def test_pas_de_doublon_avec_les_constats_existants():
     # Les constats existants gardent leur gravité et reçoivent la preuve de ZAP
     assert calculer(existants)["score"] == score_avant
     clic = next(c for c in existants if "clickjacking" in c.titre)
-    assert clic.sources == ["Vérification", "ZAP"] and "Missing Anti-clickjacking Header — vu sur 3 page(s)" in clic.preuves[-1]
+    assert clic.sources == ["Vérification", "ZAP"] and "Missing Anti-clickjacking Header — vu sur 3 pages" in clic.preuves[-1]
     # Le cookie PHPSESSID est signalé par deux règles de ZAP : toujours un seul constat
     cookie = next(c for c in existants if "PHPSESSID" in c.titre)
     assert cookie.sources.count("ZAP") == 1 and not any("PHPSESSID" in t for t in titres)
@@ -153,7 +153,7 @@ def test_sans_constat_existant_zap_cree_le_constat_une_seule_fois():
     assert len(clic[0].preuves) == 3
     assert len([c for c in nouveaux if c.titre.startswith("Cookie « PHPSESSID »")]) == 1
     nosniff = next(c for c in nouveaux if "X-Content-Type-Options" in c.titre)
-    assert nosniff.preuves[-1] == "ZAP : … et 1 autre(s) page(s)"            # 6 pages, 5 affichées
+    assert nosniff.preuves[-1] == "ZAP : … et 1 autre page"            # 6 pages, 5 affichées
 
 
 def test_fiches_bien_formees():
@@ -219,7 +219,7 @@ def test_scan_complet_avec_zap(faux_site, faux_outils, tmp_path, monkeypatch):
     import app as plateforme
     client = plateforme.app.test_client()
     page = client.get(f"/scan/{scan.id}").get_data(as_text=True)
-    assert "ZAP, analyse passive (11 alerte(s) retenue(s), 1 d'information ignorée(s))" in page
+    assert "ZAP, analyse passive (11 alertes retenues, 1 alerte d&#39;information ignorée)" in page
     assert "ZAP 2.16.1" in page and "Formulaire sans jeton anti-CSRF" in page
     # Un extrait de page cité en preuve est affiché comme du texte, jamais interprété par le navigateur
     assert "&lt;form action=" in page and '<form action="login.html"' not in page

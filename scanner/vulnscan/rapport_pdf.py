@@ -16,6 +16,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (KeepTogether, PageBreak, Paragraph, Preformatted, SimpleDocTemplate,
                                 Spacer, Table, TableStyle)
 
+from .texte import accord, duree, etape_resume, origine_resume
+
 ACCENT = colors.HexColor("#1f4e79")
 GRIS = colors.HexColor("#5b6878")
 BORD = colors.HexColor("#dde3ea")
@@ -90,7 +92,7 @@ def generer_pdf(r: dict, chemin: Path):
     garde = [[P("Cible", "cell"), P(r["cible"]["url"], "cell")],
              *([[P("Adresse analysée", "cell"), P(f"{r['cible']['url_analysee']} (redirection vers HTTPS)", "cell")]]
                if r["cible"].get("url_analysee") not in (None, r["cible"]["url"]) else []),
-             [P("Adresse(s)", "cell"), P(", ".join(r["cible"]["adresses"]), "cell")],
+             [P("Adresse" if len(r["cible"]["adresses"]) < 2 else "Adresses", "cell"), P(", ".join(r["cible"]["adresses"]), "cell")],
              [P("Date", "cell"), P(r["date"], "cell")],
              [P("Score", "cell"), P(f"{r['score']['score']}/100 — {r['score']['niveau']}", "cell")],
              [P("Cadre", "cell"), P("Analyse réalisée sur une cible autorisée, dans un cadre pédagogique.", "cell")]]
@@ -104,7 +106,7 @@ def generer_pdf(r: dict, chemin: Path):
                   colWidths=[4.5 * cm, 12 * cm])
     carte.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "MIDDLE"), ("BOX", (0, 0), (-1, -1), 0.6, BORD),
                                ("BACKGROUND", (0, 0), (0, 0), colors.HexColor("#f3f6fa"))]))
-    h += [carte, Spacer(1, 0.3 * cm), P(r["resume"]), P(f"Résumé rédigé : {r['resume_origine']}.", "petit")]
+    h += [carte, Spacer(1, 0.3 * cm), P(r["resume"]), P(origine_resume(r["resume_origine"]), "petit")]
     comptes = Table([[Paragraph(f"{c[g]}<br/>{g}", S["cellb"]) for g in COULEURS]], colWidths=[4.1 * cm] * 4)
     comptes.setStyle(TableStyle([("BACKGROUND", (i, 0), (i, 0), COULEURS[g]) for i, g in enumerate(COULEURS)]
                                 + [("TOPPADDING", (0, 0), (-1, -1), 6), ("BOTTOMPADDING", (0, 0), (-1, -1), 6)]))
@@ -164,22 +166,22 @@ def generer_pdf(r: dict, chemin: Path):
             "un constat est « Confirmé » s'il est reproduit, « Non confirmé » s'il ne l'est pas, "
             "« Faux positif probable » si la vérification le contredit, et « À vérifier » s'il demande un contrôle manuel.")]
     lm = [[P("Étape", "cell"), P("Version", "cell"), P("Durée", "cell")],
-          [P("Vérification directe", "cell"), P("—", "cell"), P(f"{r['durees'].get('Vérification directe', '—')} s", "cell")]]
+          [P("Vérification directe", "cell"), P("—", "cell"), P(duree(r['durees'].get('Vérification directe')), "cell")]]
     if r.get("chemins"):
-        lm.append([P(f"Contrôle des chemins sensibles ({r['chemins']['requetes']} requêtes GET)", "cell"), P("—", "cell"),
-                   P(f"{r['durees'].get('Chemins sensibles', '—')} s", "cell")])
+        lm.append([P(f"Contrôle des chemins sensibles ({accord(r['chemins']['requetes'], 'requête GET', 'requêtes GET')})", "cell"),
+                   P("—", "cell"), P(duree(r['durees'].get('Chemins sensibles')), "cell")])
     if r.get("applicatif"):
-        lm.append([P(f"Tests applicatifs : XSS, injection SQL ({r['applicatif']['points']} paramètre(s), "
-                     f"{r['applicatif']['requetes']} requêtes)", "cell"), P("—", "cell"),
-                   P(f"{r['durees'].get('Tests applicatifs', '—')} s", "cell")])
+        lm.append([P(f"Tests applicatifs : XSS, injection SQL ({accord(r['applicatif']['points'], 'paramètre')}, "
+                     f"{accord(r['applicatif']['requetes'], 'requête')})", "cell"), P("—", "cell"),
+                   P(duree(r['durees'].get('Tests applicatifs')), "cell")])
     for nom in ("Nmap", "Nikto", "SSLScan"):
         lm.append([P(nom, "cell"), P(r["versions"].get(nom, ""), "cell"),
-                   P(f"{r['durees'][nom]} s" if nom in r["durees"] else "non lancé", "cell")])
+                   P(duree(r["durees"][nom]) if nom in r["durees"] else "non lancé", "cell")])
     if r.get("zap"):
-        lm.append([P(f"ZAP, analyse passive ({r['zap']['alertes']} alerte(s) retenue(s))", "cell"),
-                   P(r["versions"].get("ZAP", ""), "cell"), P(f"{r['durees'].get('ZAP', '—')} s", "cell")])
-    lm.append([P(f"Résumé ({r['resume_origine']})", "cell"), P("—", "cell"), P(f"{r['durees'].get('Résumé', '—')} s", "cell")])
-    lm.append([P("Total", "cell"), P("", "cell"), P(f"{r['durees'].get('Total', '—')} s", "cell")])
+        lm.append([P(f"ZAP, analyse passive ({accord(r['zap']['alertes'], 'alerte retenue', 'alertes retenues')})", "cell"),
+                   P(r["versions"].get("ZAP", ""), "cell"), P(duree(r['durees'].get('ZAP')), "cell")])
+    lm.append([P(etape_resume(r["resume_origine"]), "cell"), P("—", "cell"), P(duree(r['durees'].get('Résumé')), "cell")])
+    lm.append([P("Total", "cell"), P("", "cell"), P(duree(r['durees'].get('Total')), "cell")])
     h.append(_tableau(lm, [5 * cm, 8.5 * cm, 3 * cm]))
 
     # Annexe
