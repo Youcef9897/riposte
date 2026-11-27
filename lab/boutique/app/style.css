@@ -53,7 +53,7 @@ html { scroll-behavior: smooth; }
 .hero div { padding: 40px 24px; max-width: 680px; }
 .hero h1 { margin: 0 0 10px; font-size: 42px; line-height: 1.15; }
 .hero p { margin: 0 0 22px; color: var(--doux); font-size: 18px; }
-.bouton { display: inline-block; padding: 12px 22px; border-radius: 10px; background: var(--accent); color: #fff; font-weight: 700; text-decoration: none; }
+.bouton { display: inline-block; padding: 16px 40px; border-radius: 12px; background: var(--accent); color: #fff; font-size: 20px; font-weight: 700; text-decoration: none; box-shadow: 0 8px 24px rgba(79, 140, 255, .35); }
 .bouton:hover { filter: brightness(1.1); }
 .atouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
 .atouts h2 { margin: 0 0 6px; font-size: 18px; }
@@ -63,12 +63,16 @@ html { scroll-behavior: smooth; }
 .tete-catalogue h1 { font-size: 40px; margin: 8px 0 12px; }
 .tete-catalogue form.recherche { justify-content: center; }
 .tete-catalogue input[type=search] { width: min(420px, 100%); }
-select { padding: 8px 10px; border: 1px solid var(--bord); border-radius: 8px; font-size: 15px; background: var(--fond); color: var(--texte); width: min(420px, 100%); }
-/* Flèches pour remonter et redescendre */
-.fleches { position: fixed; right: 18px; bottom: 18px; display: flex; flex-direction: column; gap: 8px; z-index: 10; }
-.fleches a { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;
-             background: var(--carte2); border: 1px solid var(--bord); color: var(--texte); text-decoration: none; }
-.fleches a:hover { border-color: var(--accent); }
+/* Menu déroulant « Catalogue » dans l'en-tête */
+nav { display: flex; align-items: center; }
+.menu { position: relative; margin-left: 16px; }
+.menu > a { margin-left: 0; }
+.sous-menu { display: none; position: absolute; right: 0; top: 100%; z-index: 20; min-width: 240px; padding: 8px;
+             background: var(--carte2); border: 1px solid var(--bord); border-radius: 12px; box-shadow: 0 12px 30px rgba(0, 0, 0, .45); }
+.menu:hover .sous-menu, .menu:focus-within .sous-menu { display: block; }
+.sous-menu a { display: block; margin: 0; padding: 8px 12px; border-radius: 8px; color: var(--texte); white-space: nowrap; }
+.sous-menu a:hover { background: rgba(79, 140, 255, .18); }
+.sous-menu a:first-child { color: var(--accent); font-weight: 600; }
 /* Cartes produit : bouton toujours aligné en bas */
 .produit { display: flex; flex-direction: column; }
 .produit .prix { margin-top: auto; }
