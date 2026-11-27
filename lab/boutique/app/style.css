@@ -1,30 +1,49 @@
-:root { --fond: #f4f6f8; --texte: #1d2733; --doux: #5b6878; --accent: #0f5e8a; --bord: #d8dee6; --alerte: #8a5a00; }
+/* NetStock Lab — thème bleu nuit (même palette que DenimLab, mon premier site) */
+:root {
+  --fond: #0b1220; --carte: #111a2e; --carte2: #16213a; --texte: #eaf0ff; --doux: #9fb0d4;
+  --accent: #4f8cff; --accent2: #22c55e; --bord: rgba(255, 255, 255, .10); --alerte: #fbbf24;
+}
 * { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, sans-serif; background: var(--fond); color: var(--texte); line-height: 1.5; }
-.lab { margin: 0; padding: 6px 16px; background: #fdf6e3; color: var(--alerte); font-size: 14px; text-align: center; }
+body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--texte); line-height: 1.5;
+       background: radial-gradient(900px 500px at 15% 0%, rgba(79, 140, 255, .18), transparent),
+                   radial-gradient(700px 500px at 90% 10%, rgba(34, 197, 94, .10), transparent), var(--fond);
+       min-height: 100vh; }
+a { color: var(--accent); }
+.lab { margin: 0; padding: 6px 16px; background: rgba(251, 191, 36, .12); color: var(--alerte); font-size: 14px; text-align: center;
+       border-bottom: 1px solid rgba(251, 191, 36, .25); }
 header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
-         padding: 14px 24px; background: #fff; border-bottom: 1px solid var(--bord); }
-.marque { font-weight: 700; font-size: 20px; color: var(--accent); text-decoration: none; }
-nav a { margin-left: 16px; color: var(--texte); }
+         padding: 14px 24px; background: rgba(255, 255, 255, .03); border-bottom: 1px solid var(--bord); }
+.marque { font-weight: 800; font-size: 21px; letter-spacing: .5px; color: var(--texte); text-decoration: none; }
+.marque::before { content: "◆ "; color: var(--accent); }
+nav a { margin-left: 16px; color: var(--doux); text-decoration: none; }
+nav a:hover { color: var(--texte); }
 main { max-width: 1000px; margin: 0 auto; padding: 24px; }
+h1 { letter-spacing: .3px; }
 .grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-.produit, .carte { background: #fff; border: 1px solid var(--bord); border-radius: 8px; padding: 16px; }
+.produit, .carte { background: var(--carte); border: 1px solid var(--bord); border-radius: 14px; padding: 16px; }
+.produit:hover { border-color: rgba(79, 140, 255, .45); }
 .produit h2 { font-size: 17px; margin: 10px 0 4px; }
-img.vignette { border-radius: 6px; width: 100%; height: auto; aspect-ratio: 400 / 260; object-fit: cover; display: block; }
-div.vignette { height: 90px; border-radius: 6px; display: flex; align-items: center; justify-content: center;
-            background: #e5eef5; color: var(--accent); font-weight: 600; }
-.prix { font-weight: 700; font-size: 18px; }
+.produit p { color: var(--doux); }
+img.vignette { border-radius: 10px; width: 100%; height: auto; aspect-ratio: 400 / 260; object-fit: cover; display: block; }
+div.vignette { height: 90px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+               background: var(--carte2); color: var(--accent); font-weight: 600; }
+.prix { font-weight: 700; font-size: 18px; color: var(--accent2); }
 form.recherche, form.ligne { display: flex; gap: 8px; margin: 12px 0; }
-input { padding: 8px 10px; border: 1px solid var(--bord); border-radius: 6px; font-size: 15px; }
+input { padding: 8px 10px; border: 1px solid var(--bord); border-radius: 8px; font-size: 15px;
+        background: var(--fond); color: var(--texte); }
+input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 input[type=number] { width: 70px; }
-button { padding: 8px 14px; border: 0; border-radius: 6px; background: var(--accent); color: #fff; font-size: 15px; cursor: pointer; }
-button.second { background: #fff; color: var(--accent); border: 1px solid var(--accent); }
-.carte label { display: block; margin-bottom: 12px; }
+button { padding: 8px 14px; border: 0; border-radius: 8px; background: var(--accent); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; }
+button:hover { filter: brightness(1.1); }
+button.second { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.carte label { display: block; margin-bottom: 12px; color: var(--doux); }
 .carte input { display: block; width: 100%; margin-top: 4px; }
-table { width: 100%; border-collapse: collapse; background: #fff; }
-th, td { padding: 8px 10px; border-bottom: 1px solid var(--bord); text-align: left; }
-.total td { font-weight: 700; }
-.info { background: #eef6fb; padding: 8px 12px; border-radius: 6px; }
-.erreur { background: #fef2f2; color: #b42318; padding: 8px 12px; border-radius: 6px; }
+table { width: 100%; border-collapse: collapse; background: var(--carte); border-radius: 12px; overflow: hidden; }
+th, td { padding: 9px 12px; border-bottom: 1px solid var(--bord); text-align: left; }
+th { color: var(--doux); font-weight: 600; background: var(--carte2); }
+.total td { font-weight: 700; color: var(--accent2); }
+.info { background: rgba(79, 140, 255, .12); border: 1px solid rgba(79, 140, 255, .3); padding: 8px 12px; border-radius: 8px; }
+.erreur { background: rgba(239, 68, 68, .12); border: 1px solid rgba(239, 68, 68, .35); color: #fca5a5; padding: 8px 12px; border-radius: 8px; }
 .petit { font-size: 14px; color: var(--doux); }
 footer { text-align: center; color: var(--doux); font-size: 14px; padding: 24px; }
+footer a { color: var(--doux); }
