@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="style.css?v=<?= filemtime(__DIR__ . '/../style.css') ?>">
 </head>
 <body>
-<p class="lab">NetStock Lab — <strong>version corrigée</strong> (exercice de sécurité). Données fictives.</p>
+<p class="lab"><strong>version corrigée</strong></p>
 <header>
   <a class="marque" href="accueil.php">NetStock Lab</a>
   <nav>
