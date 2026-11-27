@@ -350,6 +350,7 @@ def constats_web(cible, nikto, obs, ports) -> list:
 
     # Cookies
     vus = set()
+    proteges = {}          # cookies reçus avec HttpOnly : nom → ligne Set-Cookie (preuve)
     for c in obs.get("cookies", []):
         manques = []
         if not c["httponly"]:
@@ -358,6 +359,8 @@ def constats_web(cible, nikto, obs, ports) -> list:
             manques.append("Secure")
         if not c["samesite"]:
             manques.append("SameSite")
+        if c["httponly"]:
+            proteges[c["nom"].lower()] = c["brut"]
         if not manques:
             continue
         vus.add(c["nom"].lower())
@@ -381,6 +384,18 @@ def constats_web(cible, nikto, obs, ports) -> list:
         if nom.lower() in vus:
             continue
         vus.add(nom.lower())
+        if nom.lower() in proteges:
+            # Nikto 2.1.5 se trompe parfois : le cookie reçu par la vérification directe porte bien HttpOnly.
+            r.append(Constat(
+                titre=f"Cookie « {nom} » sans HttpOnly selon Nikto, protégé en réalité",
+                gravite="Info", categorie="Session",
+                description="Nikto signale ce cookie sans l'attribut HttpOnly, mais le cookie reçu par la "
+                            "vérification directe le porte bien : l'alerte de Nikto est contredite.",
+                recommandation="Aucune action : garder HttpOnly (et Secure en HTTPS) sur ce cookie.",
+                preuves=[f"Nikto : {l}", f"Vérification : Set-Cookie: {proteges[nom.lower()][:120]}"],
+                sources=["Nikto", "Vérification"], verification=FAUX_POSITIF,
+                reference="OWASP — Session Management Cheat Sheet"))
+            continue
         r.append(Constat(
             titre=f"Cookie « {nom} » sans attribut HttpOnly (signalé par Nikto)",
             gravite="Faible", categorie="Session",
@@ -656,11 +671,49 @@ def constats_zap(alertes, existants) -> list:
     return nouveaux
 
 
+# ---------------------------------------------------------------- Tests applicatifs de base
+
+def constats_applicatif(app) -> list:
+    """XSS réfléchie et injection SQL trouvées par vulnscan.applicatif (un constat par faille, tous les lieux en preuve)."""
+    if not app:
+        return []
+    r = []
+    if app["sqli"]:
+        confirmes = [e for e in app["sqli"] if e["confirme"]]
+        r.append(Constat(
+            titre="Injection SQL : une apostrophe provoque une erreur de la base de données",
+            gravite="Élevée", categorie="Injection",
+            description="La valeur saisie est insérée telle quelle dans une requête SQL : une simple apostrophe "
+                        "casse la requête et la page affiche l'erreur de la base. Un attaquant peut alors modifier "
+                        "la requête, par exemple pour se connecter sans mot de passe ou lire d'autres données.",
+            recommandation="Utiliser des requêtes préparées avec paramètres liés (PDO::prepare puis execute) pour "
+                           "toutes les requêtes, et ne jamais afficher les erreurs de la base au visiteur "
+                           "(message générique, détail dans le journal du serveur).",
+            preuves=[f"{e['lieu']} : « valeur' » → {e['erreur'][:140]}"
+                     + (" ; « valeur'' » → pas d'erreur" if e["confirme"] else "") for e in app["sqli"][:5]],
+            sources=["Tests applicatifs"],
+            verification=CONFIRME if confirmes else NON_VERIFIABLE,
+            reference="OWASP Top 10 A03 — CWE-89"))
+    if app["xss"]:
+        r.append(Constat(
+            titre="XSS réfléchie : le texte saisi est renvoyé dans la page sans échappement",
+            gravite="Moyenne", categorie="Injection",
+            description="Une balise envoyée dans un paramètre réapparaît telle quelle dans la page : un lien piégé "
+                        "peut donc exécuter un script dans le navigateur de la victime (vol de session, "
+                        "fausse page de connexion).",
+            recommandation="Échapper toute donnée affichée (en PHP : htmlspecialchars($valeur, ENT_QUOTES, 'UTF-8')) "
+                           "et ajouter une Content-Security-Policy qui interdit les scripts en ligne.",
+            preuves=[f"{e['lieu']} : marqueur renvoyé tel quel → …{e['extrait'][:140]}…" for e in app["xss"][:5]],
+            sources=["Tests applicatifs"], verification=CONFIRME,
+            reference="OWASP Top 10 A03 — CWE-79"))
+    return r
+
+
 # ---------------------------------------------------------------- Assemblage
 
-def construire(cible, ports, nikto, ssl, obs, ecoutes=None, chemins=None, zap=None) -> list:
-    tous = (constats_reseau(cible, ports, ecoutes) + constats_cve(ports, ecoutes, cible) + constats_chemins(chemins)
-            + constats_web(cible, nikto, obs, ports) + constats_tls(ssl, obs, cible))
+def construire(cible, ports, nikto, ssl, obs, ecoutes=None, chemins=None, zap=None, applicatif=None) -> list:
+    tous = (constats_applicatif(applicatif) + constats_reseau(cible, ports, ecoutes) + constats_cve(ports, ecoutes, cible)
+            + constats_chemins(chemins) + constats_web(cible, nikto, obs, ports) + constats_tls(ssl, obs, cible))
     if zap:
         tous += constats_zap(zap, tous)
     # Un listage vu à la fois par notre contrôle et par Nikto ne fait qu'un seul constat.

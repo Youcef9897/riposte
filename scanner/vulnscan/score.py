@@ -18,10 +18,11 @@ BAREME = ("Le score part de 100. Chaque constat retire des points selon sa gravi
 # Ce que Nmap, Nikto, SSLScan et la vérification directe ne peuvent pas voir : sans ce rappel, un bon score
 # sur un site plein de failles applicatives (cas de la boutique NetStock Lab, 78/100) donnerait une fausse assurance.
 PERIMETRE = ("Périmètre : cette analyse porte sur la configuration du serveur (ports, en-têtes, cookies, méthodes HTTP, "
-             "chiffrement, fichiers exposés). Elle ne teste pas la logique de l'application : injection SQL, XSS, "
-             "contrôle d'accès aux données d'un autre client, prix ou quantités modifiés dans le panier. "
-             "Ces failles demandent des tests dynamiques (ZAP en mode actif, Burp Suite) ou une relecture du code : "
-             "un bon score ne garantit pas leur absence.")
+             "chiffrement, fichiers exposés) et sur deux tests applicatifs de base : XSS réfléchie et injection SQL "
+             "révélée par un message d'erreur, dans les formulaires de recherche et de connexion. Elle ne teste pas "
+             "le contrôle d'accès aux données d'un autre client, les prix ou quantités modifiés dans le panier, "
+             "ni les injections « aveugles » (sans message d'erreur). Ces failles demandent des tests plus poussés "
+             "(ZAP en mode actif, Burp Suite) ou une relecture du code : un bon score ne garantit pas leur absence.")
 
 
 def compter(constats) -> dict:

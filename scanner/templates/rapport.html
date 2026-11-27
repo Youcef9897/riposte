@@ -89,6 +89,9 @@
     {% if r.chemins %}
     <tr><td>Contrôle des chemins sensibles ({{ r.chemins.requetes }} requêtes GET)</td><td>—</td><td>{{ r.durees["Chemins sensibles"] }} s</td></tr>
     {% endif %}
+    {% if r.applicatif %}
+    <tr><td>Tests applicatifs de base : XSS, injection SQL ({{ r.applicatif.points }} paramètre(s), {{ r.applicatif.requetes }} requêtes)</td><td>—</td><td>{{ r.durees["Tests applicatifs"] }} s</td></tr>
+    {% endif %}
     {% for nom in ("Nmap", "Nikto", "SSLScan") %}
     <tr><td>{{ nom }}</td><td>{{ r.versions[nom] }}</td><td>{{ r.durees[nom] ~ " s" if nom in r.durees else "non lancé" }}</td></tr>
     {% endfor %}

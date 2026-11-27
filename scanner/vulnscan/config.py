@@ -44,6 +44,12 @@ CHEMINS_SUPPLEMENTAIRES = [
     if c.strip()
 ]
 
+# Tests applicatifs de base : XSS réfléchie et injection SQL révélée par un message d'erreur.
+# Valeurs inoffensives, formulaires GET et de connexion seulement : TESTS_APPLICATIFS=0 pour s'en passer.
+TESTS_APPLICATIFS = os.environ.get("TESTS_APPLICATIFS", "1") == "1"
+APPLICATIF_MAX_PAGES = int(os.environ.get("APPLICATIF_MAX_PAGES", "12"))
+APPLICATIF_MAX_REQUETES = int(os.environ.get("APPLICATIF_MAX_REQUETES", "80"))
+
 # ZAP en mode passif (exploration des pages et lecture des réponses, aucune attaque) : ZAP_ACTIF=1 pour l'activer.
 # Désactivé par défaut : ZAP doit être installé à part et allonge l'analyse d'une à deux minutes.
 ZAP_ACTIF = os.environ.get("ZAP_ACTIF", "0") == "1"

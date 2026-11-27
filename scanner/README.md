@@ -27,6 +27,19 @@ Le premier scan réel du site de la VM donnait 64/100, avec deux faux positifs e
 | CVE (script `vulners` de Nmap) | Liste les CVE publiées pour les versions détectées, avec leur score CVSS. Constat « À vérifier », car il repose sur le seul numéro de version. |
 | Versions des outils | Nikto et SSLScan affichés proprement dans la méthodologie. |
 
+## Tests applicatifs de base (`applicatif.py`)
+
+Nmap, Nikto et SSLScan ne testent pas l'application elle-même. Ce module cherche, dans les paramètres du site :
+
+| Test | Valeur envoyée | Constat si… |
+|---|---|---|
+| XSS réfléchie | un marqueur en forme de balise inconnue (`<rpst…>`) | le marqueur revient tel quel dans la page (gravité moyenne) |
+| Injection SQL révélée par une erreur | la même valeur, puis avec une apostrophe, puis avec deux | l'apostrophe seule provoque une erreur de la base (SQLSTATE, MySQL, SQLite, PostgreSQL…) ; « Confirmé » si deux apostrophes n'en provoquent plus (gravité élevée) |
+
+Règles de prudence : pages et requêtes en nombre limité (12 et 80), même hôte, sous l'adresse analysée ; seuls les formulaires GET (recherche) et de connexion (champ mot de passe) sont envoyés, jamais le panier ou une commande ; les liens de déconnexion ou de suppression ne sont pas suivis. Le jeton anti-CSRF d'un formulaire de connexion est relu avant chaque envoi.
+
+Limites : une injection « aveugle » (sans message d'erreur), une XSS stockée ou un défaut de contrôle d'accès ne sont pas détectés.
+
 Limites connues : le contrôle des chemins utilise une courte liste de noms courants et les liens de la page d'accueil ; un dossier au nom inhabituel doit être ajouté avec `CHEMINS_SUPPLEMENTAIRES`. Les CVE demandent un accès à Internet (les numéros de version sont envoyés à vulners.com).
 
 ## Sites en HTTPS
@@ -106,6 +119,8 @@ Ils se changent au lancement, sans modifier le code :
 | `NMAP_PORTS` | Ports vérifiés par Nmap | `21,22,23,25,80,443,631,3306,3389,5432,8080,8443` |
 | `CVE_ACTIVE` | `0` pour ne pas chercher les CVE (aucun envoi à vulners.com) | `1` |
 | `CHEMINS_ACTIFS` | `0` pour désactiver le contrôle des chemins sensibles | `1` |
+| `TESTS_APPLICATIFS` | `0` pour désactiver les tests de XSS et d'injection SQL | `1` |
+| `APPLICATIF_MAX_PAGES` / `APPLICATIF_MAX_REQUETES` | Pages explorées et requêtes maximales des tests applicatifs | `12` / `80` |
 | `CHEMINS_SUPPLEMENTAIRES` | Chemins propres au site à contrôler en plus (`dossier/` ou `fichier`) | vide |
 | `CHEMINS_MAX_REQUETES` | Nombre maximal de requêtes du contrôle des chemins | `80` |
 
@@ -123,6 +138,7 @@ scanner/
 │   ├── analyse.py         lecture des sorties (XML de Nmap, texte de Nikto et SSLScan)
 │   ├── verification.py    vérification directe par requêtes HTTP de lecture
 │   ├── chemins.py         contrôle des chemins sensibles (listage, sauvegardes, code source)
+│   ├── applicatif.py      tests applicatifs de base (XSS réfléchie, injection SQL par erreur)
 │   ├── ecoute.py          adresse d'écoute réelle des services locaux (ss)
 │   ├── zap.py             ZAP en mode passif : plan, lancement, lecture du rapport JSON
 │   ├── regles_zap.py      fiches en français des alertes de ZAP

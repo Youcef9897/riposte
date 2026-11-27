@@ -9,7 +9,7 @@ import uuid
 
 from urllib.parse import urlsplit
 
-from . import (analyse, chemins as mod_chemins, config, constats as mod_constats, ecoute, outils, resume,
+from . import (analyse, applicatif as mod_applicatif, chemins as mod_chemins, config, constats as mod_constats, ecoute, outils, resume,
                score as mod_score, verification, zap as mod_zap)
 
 
@@ -83,6 +83,12 @@ class Scan:
             tc = time.time()
             ch = mod_chemins.controler(self.cible, obs.get("page", ""))
             durees["Chemins sensibles"] = round(time.time() - tc, 1)
+        app = None
+        if config.TESTS_APPLICATIFS and obs.get("accessible"):
+            self._maj(9, "Tests applicatifs de base (XSS, injection SQL)…")
+            ta = time.time()
+            app = mod_applicatif.tester(self.cible)
+            durees["Tests applicatifs"] = round(time.time() - ta, 1)
         ecoutes = ecoute.ecoutes_locales() if self.cible.est_locale else None
 
         # ZAP passif (facultatif) : lancé en même temps que les autres outils, car il est le plus long.
@@ -120,7 +126,7 @@ class Scan:
         nikto = analyse.lire_nikto(res_outils["Nikto"].sortie)
         ssl = analyse.lire_sslscan(res_outils["SSLScan"].sortie)
         liste = mod_constats.construire(self.cible, ports, nikto, ssl, obs, ecoutes, ch,
-                                        rapport_zap["alertes"] if rapport_zap else None)
+                                        rapport_zap["alertes"] if rapport_zap else None, app)
         sc = mod_score.calculer(liste)
 
         self._maj(85, "Rédaction du résumé…")
@@ -140,8 +146,12 @@ class Scan:
             "zap": ({"alertes": len(rapport_zap["alertes"]), "ignorees": rapport_zap["ignorees"],
                      "hors_site": rapport_zap["hors_site"]} if rapport_zap else None),
             "commandes": {**{n: r.commande for n, r in res_outils.items()},
-                          **({"Chemins sensibles": f"{ch['requetes']} requête(s) GET sous l'adresse analysée"} if ch else {})},
+                          **({"Chemins sensibles": f"{ch['requetes']} requête(s) GET sous l'adresse analysée"} if ch else {}),
+                          **({"Tests applicatifs": f"{app['requetes']} requête(s), {app['points']} paramètre(s) testé(s) "
+                              "avec un marqueur texte et une apostrophe"} if app else {})},
             "chemins": ({"requetes": ch["requetes"], "ignore": ch["ignore"]} if ch else None),
+            "applicatif": ({"requetes": app["requetes"], "points": app["points"], "ignore": app["ignore"]}
+                           if app else None),
             "ecoute_locale_lue": ecoutes is not None,
             "outils_interrompus": [n for n, r in res_outils.items() if r.interrompu],
             "erreurs_outils": {n: r.erreur for n, r in res_outils.items() if r.erreur},
@@ -152,7 +162,9 @@ class Scan:
             "resume": texte,
             "resume_origine": origine,
             "sorties": {**{n: (r.sortie or r.erreur) for n, r in res_outils.items()},
-                        **({"Chemins sensibles": ch["ignore"] or "\n".join(ch["journal"])} if ch else {})},
+                        **({"Chemins sensibles": ch["ignore"] or "\n".join(ch["journal"])} if ch else {}),
+                        **({"Tests applicatifs": "\n".join(([app["ignore"]] if app["ignore"] else []) + app["journal"])}
+                           if app else {})},
         }
         (self.dossier / "resultat.json").write_text(
             json.dumps(self.resultat, ensure_ascii=False, indent=2), encoding="utf-8")

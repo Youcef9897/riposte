@@ -33,7 +33,9 @@ def resume_automatique(cible, constats, score) -> str:
         f"L'analyse de {cible.url} a relevé {len(retenus)} faiblesse(s) à corriger ({detail}). "
         f"Le score de sécurité est de {score['score']}/100, soit un niveau « {score['niveau']} ». "
         f"Les corrections prioritaires portent sur : {priorites}. "
-        "La plupart de ces points se corrigent dans la configuration du serveur, sans modifier le code du site."
+        + ("Les failles d'injection se corrigent dans le code du site ; les autres points, dans la configuration "
+           "du serveur." if any(x.categorie == "Injection" for x in retenus) else
+           "La plupart de ces points se corrigent dans la configuration du serveur, sans modifier le code du site.")
     )
 
 

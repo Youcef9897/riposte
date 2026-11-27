@@ -30,6 +30,8 @@ Le projet va plus loin qu'un scanner : il embarque son propre terrain d'entraîn
 Ce score trop rassurant n'est pas un bug : il note seulement la **configuration du serveur** (ports, en-têtes, chiffrement, fichiers exposés). Nmap, Nikto, SSLScan et ZAP en mode passif ne voient pas les failles de **logique applicative**.
 C'est exactement le piège que RIPOSTE met en évidence : chaque rapport rappelle ce que le score ne couvre pas, et les failles trouvées à la main sont présentées à part, avec leur vraie gravité.
 
+**Ce que j'en ai tiré :** RIPOSTE teste maintenant lui-même les deux failles d'injection les plus courantes, la **XSS réfléchie** et l'**injection SQL révélée par un message d'erreur**, avec des valeurs inoffensives (un marqueur texte, une apostrophe) et uniquement dans les formulaires de recherche et de connexion. Sur NetStock Lab, il trouve seul l'injection SQL de la connexion et la XSS de la recherche, puis les voit disparaître sur la version corrigée. Les failles de logique (prix, quantité, accès aux commandes d'un autre client) restent à tester à la main.
+
 | NetStock Lab (version vulnérable) | Résultat |
 |---|---|
 | Score de configuration du serveur | 86 / 100 |
@@ -67,6 +69,8 @@ flowchart LR
 **Analyse multi-outils** — Nmap (ports, versions, CVE connues), Nikto, SSLScan et OWASP ZAP (exploration et analyse passive), lancés en parallèle.
 
 **Vérification de chaque constat** — chaque résultat est rejoué par une requête directe au site, puis classé : *Confirmé*, *À vérifier*, *Non confirmé* ou *Faux positif probable*. Exemple réel : une méthode DEBUG signalée par Nikto est écartée quand le serveur ne renvoie que sa page normale.
+
+**Tests applicatifs de base** — XSS réfléchie et injection SQL révélée par une erreur, confirmée par une contre-épreuve (deux apostrophes équilibrées ne doivent plus provoquer d'erreur). Les formulaires qui peuvent modifier des données (panier, commande) ne sont jamais envoyés.
 
 **Contrôles complémentaires** — 47 chemins sensibles (sauvegardes, fichiers de configuration, listage de dossiers), en-têtes de sécurité, cookies, certificat TLS (auto-signé, expiré, mauvais nom), HSTS, redirection HTTP → HTTPS.
 
@@ -119,6 +123,7 @@ En-têtes de sécurité, version du serveur masquée, méthode TRACE désactivé
 - **Avant :** 4 failles exploitées à la main (injection SQL, XSS, prix, IDOR). L'analyse automatique affiche pourtant 86 / 100 : le score ne voit que le serveur, d'où le verdict « critique » posé à la main.
 - **Après :** les mêmes attaques échouent. Avec ZAP, le score passe de **80 à 91 / 100** (jetons anti-CSRF et cookie protégé désormais détectés).
 - **Preuve :** les tests qui démontraient chaque faille ont été inversés — ils vérifient maintenant que chaque attaque échoue.
+- **Ensuite :** RIPOSTE détecte lui-même l'injection SQL et la XSS ; dans la comparaison avant / après, elles passent en « Corrigé ».
 
 ### 3. Cibles de référence
 

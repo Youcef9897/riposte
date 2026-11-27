@@ -151,7 +151,12 @@ def generer_pdf(r: dict, chemin: Path):
     h += [Paragraph("5. Méthodologie", S["h1"]),
           P("Les outils Nmap, Nikto et SSLScan sont lancés en parallèle avec une durée maximale. "
             "Un contrôle des chemins sensibles (listage de dossiers, copies de sauvegarde, code source) est fait par des "
-            "requêtes GET, en nombre limité, sous l'adresse analysée. Quand la cible est la machine elle-même, "
+            "requêtes GET, en nombre limité, sous l'adresse analysée. "
+            + ("Des tests applicatifs de base cherchent une XSS réfléchie (un marqueur texte renvoyé tel quel) et une "
+               "injection SQL révélée par une erreur (une apostrophe), dans les formulaires de recherche et de connexion "
+               "uniquement : les autres formulaires, qui peuvent modifier des données, ne sont jamais envoyés. "
+               if r.get("applicatif") else "") +
+            "Quand la cible est la machine elle-même, "
             "l'adresse d'écoute de chaque service est lue avec la commande ss. "
             + ("ZAP a exploré les pages du site en mode passif : il lit les réponses, sans lancer d'attaque "
                "et sans envoyer de formulaire POST. " if r.get("zap") else "") +
@@ -163,6 +168,10 @@ def generer_pdf(r: dict, chemin: Path):
     if r.get("chemins"):
         lm.append([P(f"Contrôle des chemins sensibles ({r['chemins']['requetes']} requêtes GET)", "cell"), P("—", "cell"),
                    P(f"{r['durees'].get('Chemins sensibles', '—')} s", "cell")])
+    if r.get("applicatif"):
+        lm.append([P(f"Tests applicatifs : XSS, injection SQL ({r['applicatif']['points']} paramètre(s), "
+                     f"{r['applicatif']['requetes']} requêtes)", "cell"), P("—", "cell"),
+                   P(f"{r['durees'].get('Tests applicatifs', '—')} s", "cell")])
     for nom in ("Nmap", "Nikto", "SSLScan"):
         lm.append([P(nom, "cell"), P(r["versions"].get(nom, ""), "cell"),
                    P(f"{r['durees'][nom]} s" if nom in r["durees"] else "non lancé", "cell")])
