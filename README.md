@@ -10,6 +10,8 @@ L'outil a été construit et éprouvé au fil de **huit études**, menées sur q
 
 [L'outil](#loutil) · [Les études](#les-études) · [Le laboratoire](#le-laboratoire) · [Qualité](#qualité) · [Démarrage rapide](#démarrage-rapide) · [Cadre éthique](#cadre-éthique)
 
+**Rapport de projet complet (PDF, 22 pages)** : [lire sur GitHub](docs/rapport-projet.pdf) ou [télécharger](https://github.com/Youcef9897/riposte-scanner-vulnerabilites/raw/main/docs/rapport-projet.pdf).
+
 ---
 
 ## En bref
