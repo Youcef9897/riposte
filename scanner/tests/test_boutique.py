@@ -1,4 +1,4 @@
-"""Tests de la boutique NetStock Lab — VERSION CORRIGÉE (étape S7-B).
+"""Tests de la boutique NetStock Lab — VERSION CORRIGÉE.
 
 Chaque test rejoue une attaque de la version vulnérable (branche v3-s3-boutique) et vérifie
 qu'elle échoue maintenant. La boutique est lancée avec le serveur intégré de PHP sur 127.0.0.1
@@ -75,7 +75,7 @@ def test_catalogue_et_connexion_normale(boutique):
     s = requests.Session()
     page = s.get(boutique, timeout=5).text
     assert "Switch 8 ports Gigabit" in page and "version corrigée" in page
-    assert "Connecté en tant que Alice Martin" in _connecter(s, boutique, "alice@netstock.lab", "alice2027").text
+    assert "Connecté en tant que Alice Martin" in _connecter(s, boutique, "alice@netstock.lab", "mDXDM9kKYTUjCUi").text
     assert "incorrect" in _connecter(requests.Session(), boutique, "alice@netstock.lab", "mauvais").text
 
 
@@ -117,7 +117,7 @@ def test_quantite_minimale_et_code_promo_unique(boutique):
 
 def test_commande_d_un_autre_client_refusee(boutique):
     s = requests.Session()
-    _connecter(s, boutique, "alice@netstock.lab", "alice2027")
+    _connecter(s, boutique, "alice@netstock.lab", "mDXDM9kKYTUjCUi")
     page = s.get(f"{boutique}/commande.php", params={"id": 1}, timeout=5).text   # commande de Bob
     assert "Bob Durand" not in page and "introuvable" in page
 

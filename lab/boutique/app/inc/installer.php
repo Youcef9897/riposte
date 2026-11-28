@@ -27,7 +27,7 @@ $db->exec("CREATE TABLE commandes (id $cle, client_id INT NOT NULL, total DECIMA
 
 // Mots de passe hachés avec password_hash (bcrypt + sel) : jamais stockés en clair ni en MD5.
 $clients = [
-    ['Alice Martin', 'alice@netstock.lab', 'alice2027', '12 rue Fictive, 75000 Paris'],
+    ['Alice Martin', 'alice@netstock.lab', 'mDXDM9kKYTUjCUi', '12 rue Fictive, 75000 Paris'],
     ['Bob Durand', 'bob@netstock.lab', 'bob2027', '8 avenue Imaginaire, 69000 Lyon'],
 ];
 $ajout = $db->prepare('INSERT INTO clients (nom, email, mot_de_passe, adresse) VALUES (?, ?, ?, ?)');
