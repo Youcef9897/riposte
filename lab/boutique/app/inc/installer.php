@@ -25,9 +25,9 @@ $db->exec("CREATE TABLE produits (id $cle, nom VARCHAR(120) NOT NULL, descriptio
 $db->exec("CREATE TABLE commandes (id $cle, client_id INT NOT NULL, total DECIMAL(10,2) NOT NULL,
            detail TEXT NOT NULL, date_commande VARCHAR(19) NOT NULL)$moteur");
 
-// Faille volontaire : mots de passe hachés en MD5, sans sel (corrigé en S7-B).
+// Faille volontaire : mots de passe hachés en MD5, sans sel (corrigé dans la version corrigée : bcrypt).
 $clients = [
-    ['Alice Martin', 'alice@netstock.lab', 'alice2027', '12 rue Fictive, 75000 Paris'],
+    ['Alice Martin', 'alice@netstock.lab', 'mDXDM9kKYTUjCUi', '12 rue Fictive, 75000 Paris'],
     ['Bob Durand', 'bob@netstock.lab', 'bob2027', '8 avenue Imaginaire, 69000 Lyon'],
 ];
 $ajout = $db->prepare('INSERT INTO clients (nom, email, mot_de_passe, adresse) VALUES (?, ?, ?, ?)');

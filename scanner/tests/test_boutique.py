@@ -1,7 +1,7 @@
-"""Tests de l'étape S3 : la boutique NetStock Lab contient bien ses failles volontaires.
+"""Tests de la boutique NetStock Lab, version vulnérable : elle contient bien ses failles volontaires.
 
 La boutique est lancée avec le serveur intégré de PHP sur 127.0.0.1 et une base SQLite jetable.
-Après la correction (S7-B), ces tests seront inversés : chaque attaque devra échouer.
+Dans la version corrigée (branche main), ces tests sont inversés : chaque attaque doit échouer.
 """
 import re
 import shutil
@@ -59,7 +59,7 @@ def test_catalogue_et_connexion_normale(boutique):
     s = requests.Session()
     page = s.get(boutique, timeout=5).text
     assert "Switch 8 ports Gigabit" in page and "volontairement vulnérable" in page
-    assert "Commande n° 3" in _connecter(s, boutique, "alice@netstock.lab", "alice2027").text
+    assert "Commande n° 3" in _connecter(s, boutique, "alice@netstock.lab", "mDXDM9kKYTUjCUi").text
     assert "incorrect" in _connecter(requests.Session(), boutique, "alice@netstock.lab", "mauvais").text
 
 
@@ -103,7 +103,7 @@ def test_quantite_negative_et_code_promo_reutilise(boutique):
 
 def test_commande_d_un_autre_client_visible(boutique):
     s = requests.Session()
-    _connecter(s, boutique, "alice@netstock.lab", "alice2027")
+    _connecter(s, boutique, "alice@netstock.lab", "mDXDM9kKYTUjCUi")
     page = s.get(f"{boutique}/commande.php", params={"id": 1}, timeout=5).text   # commande de Bob
     assert "Bob Durand" in page and "8 avenue Imaginaire" in page
 
