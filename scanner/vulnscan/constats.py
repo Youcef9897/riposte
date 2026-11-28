@@ -140,7 +140,7 @@ def constats_cve(ports, ecoutes=None, cible=None) -> list:
                      for c in p.cves[:5]]
                     + ([f"… et {accord(n - 5, 'autre')}"] if n > 5 else []),
             sources=["Nmap (vulners)"], verification=NON_VERIFIABLE,
-            reference="OWASP Top 10 A06 — Composants vulnérables et obsolètes"))
+            reference="OWASP Top 10:2025 A03 — Défaillances de la chaîne d'approvisionnement logicielle"))
     return resultats
 
 
@@ -262,14 +262,14 @@ def constats_web(cible, nikto, obs, ports) -> list:
                             "et peuvent être lus ou modifiés sur le réseau.",
                 recommandation="Activer HTTPS (certificat Let's Encrypt en production, auto-signé en lab), "
                                "puis rediriger tout le trafic HTTP vers HTTPS.",
-                preuves=preuves, sources=["Vérification", "Nmap"], reference="OWASP Top 10 A02 — Défaillances cryptographiques"))
+                preuves=preuves, sources=["Vérification", "Nmap"], reference="OWASP Top 10:2025 A04 — Défaillances cryptographiques"))
         elif not obs.get("redirige_vers_https"):
             r.append(Constat(
                 titre="HTTP ne redirige pas vers HTTPS",
                 gravite="Faible", categorie="Chiffrement",
                 description="HTTPS existe, mais un visiteur qui tape l'adresse en HTTP reste sur une connexion non chiffrée.",
                 recommandation="Ajouter une redirection permanente (301) de HTTP vers HTTPS.",
-                preuves=preuves, sources=["Vérification"], reference="OWASP Top 10 A02"))
+                preuves=preuves, sources=["Vérification"], reference="OWASP Top 10:2025 A04 — Défaillances cryptographiques"))
 
     # Protection contre le clickjacking
     lignes_xfo = _lignes(nikto, r"X-Frame-Options")
@@ -514,7 +514,7 @@ def _constat_certificat(ssl, obs, cible) -> Constat:
     if ssl.get("certificat_expire_le"):
         preuves.append(f"SSLScan : Not valid after: {ssl['certificat_expire_le']}")
     commun = dict(categorie="Chiffrement", preuves=preuves, sources=["Vérification", "SSLScan"],
-                  reference="OWASP Top 10 A02 — Défaillances cryptographiques")
+                  reference="OWASP Top 10:2025 A04 — Défaillances cryptographiques")
     if raison in ("expiré", "pas encore valide"):
         return Constat(
             titre="Certificat expiré" if raison == "expiré" else "Certificat pas encore valide", gravite="Moyenne",
@@ -716,7 +716,7 @@ def constats_applicatif(app) -> list:
             preuves=[ligne for e in app["sqli"][:5] for ligne in _preuves_sqli(e)],
             sources=["Tests applicatifs"],
             verification=CONFIRME if confirmes else NON_VERIFIABLE,
-            reference="OWASP Top 10 A03 — CWE-89"))
+            reference="OWASP Top 10:2025 A05 (Injection) — CWE-89"))
     if app["xss"]:
         r.append(Constat(
             titre="XSS réfléchie : le texte saisi est renvoyé dans la page sans échappement",
@@ -729,7 +729,7 @@ def constats_applicatif(app) -> list:
             preuves=[f"{e['lieu']} : la balise de test revient sans échappement → {_couper(e['extrait'], 120)}"
                      for e in app["xss"][:5]],
             sources=["Tests applicatifs"], verification=CONFIRME,
-            reference="OWASP Top 10 A03 — CWE-79"))
+            reference="OWASP Top 10:2025 A05 (Injection) — CWE-79"))
     return r
 
 

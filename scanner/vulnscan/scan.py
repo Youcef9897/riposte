@@ -104,7 +104,7 @@ class Scan:
 
         def suivi(nom, res):
             termines.append(nom)
-            self._maj(10 + 22 * len(termines), f"{nom} terminé en {res.duree} s")
+            self._maj(10 + 22 * len(termines), f"{nom} terminé en {texte_duree(res.duree)}")
 
         res_outils = outils.lancer_tous(self.cible, self.dossier, suivi,
                                         port_https=obs.get("port_https") if obs.get("https_disponible") else None)

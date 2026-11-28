@@ -123,7 +123,7 @@ FICHES = {
                 "Une adresse contient une information sensible (mot de passe, jeton, identifiant). Les adresses "
                 "sont enregistrées dans l'historique du navigateur et dans les journaux du serveur.",
                 "Envoyer ces informations dans le corps d'une requête POST, jamais dans l'adresse.",
-                "OWASP Top 10 A02 — Défaillances cryptographiques"),
+                "OWASP Top 10:2025 A04 — Défaillances cryptographiques"),
     "10025": _f("Information sensible transmise par l'en-tête Referer", "Faible", "Divulgation d'informations",
                 "Une adresse contenant une information sensible est transmise à un autre site par l'en-tête Referer.",
                 "Ne pas mettre d'information sensible dans les adresses et ajouter « Referrer-Policy: "
@@ -143,12 +143,12 @@ FICHES = {
     "10097": _f("Empreinte de mot de passe (hash) visible dans une page", None, "Divulgation d'informations",
                 "Une page contient une chaîne qui ressemble à l'empreinte (hash) d'un mot de passe.",
                 "Retirer cette valeur de la page et changer le mot de passe concerné.",
-                "OWASP Top 10 A02 — Défaillances cryptographiques"),
+                "OWASP Top 10:2025 A04 — Défaillances cryptographiques"),
     "10062": _f("Données personnelles visibles dans une page", None, "Divulgation d'informations",
                 "Une page contient une donnée qui ressemble à une donnée personnelle sensible "
                 "(par exemple un numéro de carte bancaire).",
                 "Vérifier la valeur citée en preuve et la retirer ou la masquer si elle est réelle.",
-                "OWASP Top 10 A02 — Défaillances cryptographiques"),
+                "OWASP Top 10:2025 A04 — Défaillances cryptographiques"),
 
     # ------------------------------------------------------------ Session et cookies
     "10010": _f("sans attribut HttpOnly", "Faible", "Session",
@@ -176,13 +176,13 @@ FICHES = {
                 "Le site utilise une authentification HTTP de type Basic ou Digest, ou transmet des identifiants "
                 "sans chiffrement.",
                 "Passer le site en HTTPS et utiliser un formulaire de connexion avec une session protégée.",
-                "OWASP Top 10 A07 — Identification et authentification de mauvaise qualité"),
+                "OWASP Top 10:2025 A07 — Défaillances d'authentification"),
 
     # ------------------------------------------------------------ Contenu des pages
     "10003": _f("Bibliothèque JavaScript vulnérable", "Moyenne", "Mises à jour",
                 "Le site charge une bibliothèque JavaScript dont la version a des failles connues.",
                 "Mettre à jour la bibliothèque citée en preuve vers sa dernière version.",
-                "OWASP Top 10 A06 — Composants vulnérables et obsolètes"),
+                "OWASP Top 10:2025 A03 — Défaillances de la chaîne d'approvisionnement logicielle"),
     "90003": _f("Scripts externes chargés sans contrôle d'intégrité (SRI)", "Faible", "Contenu des pages",
                 "Des scripts ou des feuilles de style viennent d'un autre site sans attribut « integrity ». "
                 "Si cet autre site est compromis, le code modifié s'exécute sur les pages.",
@@ -194,15 +194,15 @@ FICHES = {
                 "OWASP WSTG — Testing Cross Origin Resource Sharing", factuel=True),
     "10040": _f("Page HTTPS avec du contenu chargé en HTTP", "Faible", "Chiffrement",
                 "Une page en HTTPS charge des éléments en HTTP : ils peuvent être modifiés pendant le transport.",
-                "Charger tous les éléments en HTTPS.", "OWASP Top 10 A02 — Défaillances cryptographiques",
+                "Charger tous les éléments en HTTPS.", "OWASP Top 10:2025 A04 — Défaillances cryptographiques",
                 factuel=True),
     "10041": _f("Formulaire d'une page HTTP envoyé vers HTTPS", "Moyenne", "Chiffrement",
                 "Le formulaire est affiché en HTTP : il peut être modifié avant l'envoi pour détourner les données.",
-                "Servir aussi la page du formulaire en HTTPS.", "OWASP Top 10 A02 — Défaillances cryptographiques",
+                "Servir aussi la page du formulaire en HTTPS.", "OWASP Top 10:2025 A04 — Défaillances cryptographiques",
                 factuel=True),
     "10042": _f("Formulaire d'une page HTTPS envoyé en HTTP", "Moyenne", "Chiffrement",
                 "Les données du formulaire partent sans chiffrement.",
-                "Envoyer le formulaire vers une adresse HTTPS.", "OWASP Top 10 A02 — Défaillances cryptographiques",
+                "Envoyer le formulaire vers une adresse HTTPS.", "OWASP Top 10:2025 A04 — Défaillances cryptographiques",
                 factuel=True),
     "10108": _f("Lien ouvrant un nouvel onglet sans protection (tabnabbing)", "Faible", "Contenu des pages",
                 "Un lien avec target=\"_blank\" permet à la page ouverte de remplacer la page d'origine.",
@@ -237,7 +237,7 @@ FICHES = {
                 "D'après son numéro de version, le serveur ou PHP a des failles publiées. Sur Debian et Ubuntu, "
                 "les correctifs sont souvent appliqués sans changer ce numéro.",
                 "Mettre le paquet à jour (apt update && apt upgrade) et contrôler les CVE sur le suivi de sécurité "
-                "de la distribution.", "OWASP Top 10 A06 — Composants vulnérables et obsolètes",
+                "de la distribution.", "OWASP Top 10:2025 A03 — Défaillances de la chaîne d'approvisionnement logicielle",
                 doublon=r"cve connue\(s\) pour .*(apache|php)"),
     "10015": _f("Directives de cache à revoir", "Info", "Configuration",
                 "L'en-tête Cache-Control n'interdit pas la mise en cache. C'est normal pour des pages publiques ; "

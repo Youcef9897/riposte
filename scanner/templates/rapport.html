@@ -39,7 +39,7 @@
     <h2>Synthèse</h2>
     <p>{{ r.resume }}</p>
     <p class="petit doux">{{ r.resume_origine|origine_resume }}</p>
-    <p>{% for g in gravites %}<span class="grav grav-{{ g }}">{{ r.score.comptes[g]|accord(g|lower, "info" if g == "Info" else none) }}</span> {% endfor %}</p>
+    <p>{% for g in gravites %}<span class="grav grav-{{ g }}{{ ' grav-zero' if not r.score.comptes[g] }}">{{ r.score.comptes[g]|accord(g|lower, "infos" if g == "Info" else none) }}</span> {% endfor %}</p>
   </div>
 </section>
 
