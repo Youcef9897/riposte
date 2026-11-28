@@ -1,4 +1,4 @@
-"""Fiches en français des alertes passives de ZAP (étape S4-B).
+"""Fiches en français des alertes passives de ZAP.
 
 Une alerte de ZAP porte un numéro de règle (« pluginid », par exemple 10020) et parfois un numéro plus précis
 (« alertRef », par exemple 10020-1). La fiche est cherchée d'abord par alertRef, puis par pluginid.

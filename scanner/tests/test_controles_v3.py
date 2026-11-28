@@ -222,7 +222,7 @@ def test_cve_d_un_service_en_ecoute_locale_ne_coute_rien():
 
 
 def test_entetes_de_securite_presents_ne_donnent_aucun_constat():
-    """Sortie réelle de Nikto après le durcissement d'Apache (S7-A) : « Uncommon header ... found » n'est pas une faiblesse."""
+    """Sortie réelle de Nikto après le durcissement d'Apache : « Uncommon header ... found » n'est pas une faiblesse."""
     from pathlib import Path
     from vulnscan import analyse
     from vulnscan.cible import Cible

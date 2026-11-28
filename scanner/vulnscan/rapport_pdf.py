@@ -316,7 +316,7 @@ COULEURS_STATUT = {"Corrigé": colors.HexColor("#15803d"), "Atténué": colors.H
 
 
 def generer_pdf_comparaison(c: dict, chemin: Path):
-    """PDF d'une page ou deux : scores avant/après et sort de chaque constat (étape S8)."""
+    """PDF d'une page ou deux : scores avant/après et sort de chaque constat."""
     normal, gras, mono = _polices()
     S = _styles(normal, gras, mono)
     P = lambda txt, st="p": Paragraph(escape(str(txt)), S[st])

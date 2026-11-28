@@ -1,4 +1,4 @@
-"""Comparaison de deux analyses du même site (étape S8) : ce qui a été corrigé, ce qui reste, ce qui est apparu.
+"""Comparaison de deux analyses du même site : ce qui a été corrigé, ce qui reste, ce qui est apparu.
 
 Le module ne relance aucun outil : il relit deux résultats déjà enregistrés (resultat.json).
 """

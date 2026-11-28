@@ -588,7 +588,7 @@ def constats_tls(ssl, obs, cible=None) -> list:
     return r
 
 
-# ---------------------------------------------------------------- ZAP passif (étape S4-B)
+# ---------------------------------------------------------------- ZAP passif
 
 def _preuves_zap(alerte, limite=5) -> list:
     lignes = []

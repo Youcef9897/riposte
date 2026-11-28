@@ -1,4 +1,4 @@
-"""Tests de l'étape S8 : comparaison de deux analyses (avant / après corrections)."""
+"""Tests de la comparaison de deux analyses (avant / après corrections)."""
 import json
 
 import app as plateforme

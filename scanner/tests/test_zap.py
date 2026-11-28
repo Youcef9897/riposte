@@ -1,4 +1,4 @@
-"""Tests de l'étape S4-B : ZAP en mode passif.
+"""Tests de ZAP en mode passif.
 
 `donnees/zap_exemple.json` est un exemple écrit à la main au format « traditional-json » de ZAP, sur le modèle
 du site de la VM. Il contient exprès : des alertes déjà trouvées par la plateforme (doublons), des alertes

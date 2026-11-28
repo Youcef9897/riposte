@@ -1,4 +1,4 @@
-"""Tests du passage en HTTPS (suite de S7-A) : redirection HTTP → HTTPS, certificat auto-signé en lab, HSTS.
+"""Tests du passage en HTTPS (suite du durcissement d'Apache) : redirection HTTP → HTTPS, certificat auto-signé en lab, HSTS.
 
 Un vrai serveur HTTPS local est monté avec un certificat auto-signé créé par la commande openssl.
 """

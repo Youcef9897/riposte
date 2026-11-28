@@ -1,4 +1,4 @@
-"""ZAP en mode passif (étape S4-B) : plan d'analyse, lancement et lecture du rapport JSON.
+"""ZAP en mode passif : plan d'analyse, lancement et lecture du rapport JSON.
 
 « Passif » veut dire que ZAP ne lance aucune attaque : il parcourt les pages du site (liens et formulaires GET)
 et lit les réponses. Le plan ci-dessous ne contient pas de tâche « activeScan » et n'envoie pas les formulaires POST.

@@ -1,5 +1,5 @@
 <?php
-// NetStock Lab : boutique de démonstration — VERSION CORRIGÉE (étape S7-B).
+// NetStock Lab : boutique de démonstration — VERSION CORRIGÉE.
 // Lab uniquement (127.0.0.1). Mêmes pages que la version vulnérable, failles corrigées.
 declare(strict_types=1);
 
