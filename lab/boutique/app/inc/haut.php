@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="style.css?v=<?= filemtime(__DIR__ . '/../style.css') ?>">
 </head>
 <body>
-<p class="lab">Site de démonstration <strong>volontairement vulnérable</strong>, pour un lab de sécurité. Données fictives. Ne pas déployer.</p>
+<p class="lab">Site de démonstration <strong>volontairement vulnérable</strong></p>
 <header>
   <a class="marque" href="accueil.php">NetStock Lab</a>
   <nav>
